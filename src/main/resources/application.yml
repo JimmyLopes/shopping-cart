@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: SHOPPING-CART-SERVICE
+  datasource:
+    url: jdbc:mysql://localhost:3306/cartsdb?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false
+    username: root
+    password:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+server:
+  port: 8083
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka
