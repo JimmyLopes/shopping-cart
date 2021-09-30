@@ -19,8 +19,6 @@ public class ShoppingCartResource {
 
     @PostMapping
     public ShoppingCartResponse submit(@RequestBody ShoppingCartRequest requestDTO) {
-//        var cart = mapper.toModel(requestDTO);
-//        cart = shoppingCartService.purchase(cart);
-        return null;//mapper.toResponse(cart);
+        return shoppingCartService.purchase(requestDTO);
     }
 }

@@ -1,24 +1,35 @@
 package br.com.shopping.cart.services;
 
+import br.com.shopping.cart.dto.request.ShoppingCartRequest;
+import br.com.shopping.cart.dto.response.ShoppingCartResponse;
+import br.com.shopping.cart.helper.CartHelper;
 import br.com.shopping.cart.model.Cart;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 
 @Service
 public class ShoppingCartService {
 
-    public Cart purchase(Cart shoopingCart) {
-//        var uuid = UUID.randomUUID().toString();
-//        shoppingCart.setId(uuid);
-//        var user = integrationService.getRemoteUserInfo(shoppingCart.getUser().getId());
-//        shoppingCart.setUser(user);
-//        var items = integrationService.getRemoteProductItemsInfo(shoppingCart.getItems());
-//        shoppingCart.setItems(items);
-//        integrationService.submitToBilling(shoppingCart);
-//        integrationService.notifyToDelivery(shoppingCart);
-//        integrationService.askForUserReview(shoppingCart);
-        return null;
+    private final IntegrationService integrationService;
+    private final CartHelper cartHelper;
+
+    public ShoppingCartService(IntegrationService integrationService, CartHelper cartHelper) {
+        this.integrationService = integrationService;
+        this.cartHelper = cartHelper;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public ShoppingCartResponse purchase(ShoppingCartRequest request) {
+        var shoppingCart = new Cart();
+        shoppingCart.setUser(integrationService.getRemoteUserInfo(request.getUserId()));
+        shoppingCart.setItems(integrationService.getRemoteProductItemsInfo(shoppingCart.getItems()));
+        integrationService.submitToBilling(shoppingCart);
+        integrationService.notifyToDelivery(shoppingCart);
+        integrationService.askForUserReview(shoppingCart);
+        return cartHelper.toResponse(shoppingCart);
     }
 
     private BigDecimal calculatedTotalPrice(Cart cart) {
