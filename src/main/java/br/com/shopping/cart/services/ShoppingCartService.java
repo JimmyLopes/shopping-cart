@@ -4,11 +4,13 @@ import br.com.shopping.cart.dto.request.ShoppingCartRequest;
 import br.com.shopping.cart.dto.response.ShoppingCartResponse;
 import br.com.shopping.cart.helper.CartHelper;
 import br.com.shopping.cart.model.Cart;
+import br.com.shopping.cart.model.Item;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 public class ShoppingCartService {
@@ -25,16 +27,17 @@ public class ShoppingCartService {
     public ShoppingCartResponse purchase(ShoppingCartRequest request) {
         var shoppingCart = new Cart();
         shoppingCart.setUser(integrationService.getRemoteUserInfo(request.getUserId()));
-        shoppingCart.setItems(integrationService.getRemoteProductItemsInfo(shoppingCart.getItems()));
+        shoppingCart.setItems(integrationService.getRemoteProductItemsInfo(request.getItems()));
+        shoppingCart.setTotalPrice(calculatedTotalPrice(shoppingCart.getItems()));
         integrationService.submitToBilling(shoppingCart);
         integrationService.notifyToDelivery(shoppingCart);
         integrationService.askForUserReview(shoppingCart);
         return cartHelper.toResponse(shoppingCart);
     }
 
-    private BigDecimal calculatedTotalPrice(Cart cart) {
-        if (!cart.getItems().isEmpty()) {
-            return cart.getItems().stream()
+    private BigDecimal calculatedTotalPrice(List<Item> items) {
+        if (!items.isEmpty()) {
+            return items.stream()
                     .map(item -> item.getProduct().getPrice().multiply(new BigDecimal(item.getQuantity())))
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
         } return BigDecimal.ONE;

@@ -1,5 +1,6 @@
 package br.com.shopping.cart.services;
 
+import br.com.shopping.cart.dto.ItemDTO;
 import br.com.shopping.cart.feign.ProductFeignClient;
 import br.com.shopping.cart.feign.UserFeignClient;
 import br.com.shopping.cart.model.Cart;
@@ -7,6 +8,7 @@ import br.com.shopping.cart.model.Item;
 import br.com.shopping.cart.model.UserInfo;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,13 +32,14 @@ public class IntegrationService {
         return userFeignClient.findById(userId);
     }
 
-    public List<Item> getRemoteProductItemsInfo(List<Item> items) {
+    public List<Item> getRemoteProductItemsInfo(List<ItemDTO> items) {
+        List<Item> purcharseItems = new ArrayList<>();
         items.forEach(item -> {
-            var product = productFeignClient.findById(item.getProduct().getId());
-            item.setProduct(product);
+            var product = productFeignClient.findById(item.getProductId());
+            purcharseItems.add(new Item().setProduct(product).setQuantity(item.getQuantity()));
         });
 
-        return items;
+        return purcharseItems;
     }
 
     public void submitToBilling(Cart shoppingCart) {
