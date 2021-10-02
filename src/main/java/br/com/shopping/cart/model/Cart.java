@@ -1,39 +1,33 @@
 package br.com.shopping.cart.model;
 
+import javax.persistence.*;
 import java.math.BigDecimal;
-import java.util.List;
 
+@Entity
+@Table(name = "CARTS")
 public class Cart {
 
-    private String id;
-    private UserInfo user;
-    private List<Item> items;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+    private Long userId;
     private BigDecimal totalPrice;
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public Cart setId(String id) {
+    public Cart setId(Long id) {
         this.id = id;
         return this;
     }
 
-    public UserInfo getUser() {
-        return user;
+    public Long getUserId() {
+        return userId;
     }
 
-    public Cart setUser(UserInfo user) {
-        this.user = user;
-        return this;
-    }
-
-    public List<Item> getItems() {
-        return items;
-    }
-
-    public Cart setItems(List<Item> items) {
-        this.items = items;
+    public Cart setUserId(Long userId) {
+        this.userId = userId;
         return this;
     }
 

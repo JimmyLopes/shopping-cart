@@ -7,17 +7,17 @@ import java.util.List;
 
 public class ShoppingCartResponse {
 
-    private String id;
+    private Long id;
     private Long userId;
     private String userName;
     private List<ItemDTO> items;
     private BigDecimal totalPrice;
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public ShoppingCartResponse setId(String id) {
+    public ShoppingCartResponse setId(Long id) {
         this.id = id;
         return this;
     }
