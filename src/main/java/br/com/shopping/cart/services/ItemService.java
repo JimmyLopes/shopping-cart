@@ -18,4 +18,8 @@ public class ItemService {
     public void saveItems(List<Item> items) {
         itemRepository.saveAll(items);
     }
+
+    public List<Item> getCartItems(Long cartId) {
+        return itemRepository.findAllByCartId(cartId);
+    }
 }

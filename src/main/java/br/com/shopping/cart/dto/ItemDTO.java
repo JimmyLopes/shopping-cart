@@ -1,10 +1,13 @@
 package br.com.shopping.cart.dto;
 
+import java.math.BigDecimal;
+
 public class ItemDTO {
 
     private Long productId;
     private String productName;
-    private int quantity;
+    private BigDecimal productPrice;
+    private Integer quantity;
 
     public Long getProductId() {
         return productId;
@@ -24,11 +27,20 @@ public class ItemDTO {
         return this;
     }
 
-    public int getQuantity() {
+    public BigDecimal getProductPrice() {
+        return productPrice;
+    }
+
+    public ItemDTO setProductPrice(BigDecimal productPrice) {
+        this.productPrice = productPrice;
+        return this;
+    }
+
+    public Integer getQuantity() {
         return quantity;
     }
 
-    public ItemDTO setQuantity(int quantity) {
+    public ItemDTO setQuantity(Integer quantity) {
         this.quantity = quantity;
         return this;
     }

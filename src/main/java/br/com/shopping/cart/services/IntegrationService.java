@@ -5,12 +5,14 @@ import br.com.shopping.cart.feign.ProductFeignClient;
 import br.com.shopping.cart.feign.UserFeignClient;
 import br.com.shopping.cart.model.Cart;
 import br.com.shopping.cart.model.Item;
+import br.com.shopping.cart.model.ProductOverview;
 import br.com.shopping.cart.model.UserInfo;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreaker;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,41 +25,54 @@ public class IntegrationService {
 
     private final UserFeignClient userFeignClient;
     private final ProductFeignClient productFeignClient;
+    private final CircuitBreakerFactory circuitBreakerFactory;
     private final ItemService itemService;
 
     public IntegrationService(UserFeignClient userFeignClient,
                               ProductFeignClient productFeignClient,
+                              CircuitBreakerFactory circuitBreakerFactory,
                               ItemService itemService) {
         this.userFeignClient = userFeignClient;
         this.productFeignClient = productFeignClient;
+        this.circuitBreakerFactory = circuitBreakerFactory;
         this.itemService = itemService;
     }
 
 
     public UserInfo getRemoteUserInfo(Long userId) {
-        return userFeignClient.findById(userId);
+        return createCircuitBreaker().run(() -> userFeignClient.findById(userId), throwable -> this.findUserByIdFallBack(userId));
+    }
+
+    private UserInfo findUserByIdFallBack(Long userId) {
+        return new UserInfo(userId, "name info unavailable");
+    }
+
+    public ProductOverview getRemoteProduct(Long productId) {
+        return createCircuitBreaker().run(() -> productFeignClient.findById(productId), throwable -> this.findProductByIdFallBack(productId));
+    }
+
+    public ProductOverview findProductByIdFallBack(Long productId) {
+        return new ProductOverview(productId, "product name unavailable");
+    }
+
+    private CircuitBreaker createCircuitBreaker() {
+        return circuitBreakerFactory.create("circuitbreaker");
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public BigDecimal getRemoteProductItemsInfo(List<ItemDTO> items, Long shoppingCartId) {
+    public List<Item> getRemoteProductItems(List<ItemDTO> items, Long shoppingCartId) {
         List<Item> purcharseItems = new ArrayList<>();
         items.forEach(item -> {
-            var product = productFeignClient.findById(item.getProductId());
-            purcharseItems.add(new Item(product, item.getQuantity(),shoppingCartId));
+            var product = getRemoteProduct(item.getProductId());
+            purcharseItems.add(new Item(product, item.getQuantity(), shoppingCartId));
         });
 
         itemService.saveItems(purcharseItems);
 
-        return calculatedTotalPrice(purcharseItems);
+        return itemService.getCartItems(shoppingCartId);
     }
 
-    private BigDecimal calculatedTotalPrice(List<Item> items) {
-        if (!items.isEmpty()) {
-            return items.stream()
-                    .map(item -> item.getProductPrice().multiply(new BigDecimal(item.getQuantity())))
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-        } return BigDecimal.ZERO;
-    }
+
 
     public void submitToBilling(Cart shoppingCart) {
         // Pretend to submit to Billing Service

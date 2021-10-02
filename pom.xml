@@ -19,6 +19,7 @@
     <properties>
         <java.version>11</java.version>
         <spring-cloud.version>2020.0.0</spring-cloud.version>
+        <shopping.cart.commons.version>0.0.1-SNAPSHOT</shopping.cart.commons.version>
     </properties>
 
     <dependencies>
@@ -58,6 +59,13 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+
+        <!-- Shopping Cart Commons -->
+        <dependency>
+            <groupId>br.com.shopping.cart.commons</groupId>
+            <artifactId>shopping-cart-commons</artifactId>
+            <version>${shopping.cart.commons.version}</version>
         </dependency>
 
         <!-- Resilience -->

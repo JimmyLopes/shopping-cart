@@ -9,6 +9,11 @@ public class ProductOverview {
     private String name;
     private BigDecimal price;
 
+    public ProductOverview(Long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
     public Long getId() {
         return id;
     }

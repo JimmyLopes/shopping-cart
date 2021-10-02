@@ -2,6 +2,7 @@ package br.com.shopping.cart.model;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "CARTS")
@@ -12,6 +13,11 @@ public class Cart {
     private Long id;
     private Long userId;
     private BigDecimal totalPrice;
+    private LocalDateTime purchaseDate;
+
+    public Cart() {
+        this.setPurchaseDate(LocalDateTime.now());
+    }
 
     public Long getId() {
         return id;
@@ -37,6 +43,15 @@ public class Cart {
 
     public Cart setTotalPrice(BigDecimal totalPrice) {
         this.totalPrice = totalPrice;
+        return this;
+    }
+
+    public LocalDateTime getPurchaseDate() {
+        return purchaseDate;
+    }
+
+    public Cart setPurchaseDate(LocalDateTime purchaseDate) {
+        this.purchaseDate = purchaseDate;
         return this;
     }
 }
